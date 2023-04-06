@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:meals_app/dummy_data.dart';
 
-class MealDetailScreen extends StatelessWidget {
-  const MealDetailScreen({Key key}) : super(key: key);
+class MealDetailScreen extends StatefulWidget {
+  MealDetailScreen(this.toggleFavorite, this.isMealFavorite, {Key key})
+      : super(key: key);
   static const routName = "/meal-detail";
+  final Function toggleFavorite;
+  final Function isMealFavorite;
+
+  @override
+  State<MealDetailScreen> createState() => _MealDetailScreenState();
+}
+
+class _MealDetailScreenState extends State<MealDetailScreen> {
   Widget bulideSectionTitle(BuildContext context, String text) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
@@ -85,10 +91,16 @@ class MealDetailScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).pop(mealId);
+        onPressed:
+            //  () => widget.toggleFavorite(mealId),
+            () {
+          setState(() {
+            print("Favorite selected");
+            widget.toggleFavorite(mealId);
+          });
         },
-        child: const Icon(Icons.delete),
+        child: Icon(
+            widget.isMealFavorite(mealId) ? Icons.star : Icons.star_border),
       ),
     );
   }

@@ -2,25 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:meals_app/models/meal.dart';
 import 'package:meals_app/screen/mela_details_screen.dart';
 
-class MealItem extends StatelessWidget {
+class MealItem extends StatefulWidget {
   final String id;
   final String title;
   final String imageUrl;
   final int duration;
   final Complexity complexity;
   final Affordability affordability;
-  final Function removeItem;
-  MealItem(
-      {@required this.title,
-      @required this.imageUrl,
-      @required this.duration,
-      @required this.complexity,
-      @required this.affordability,
-      @required this.id,
-      @required this.removeItem});
+  MealItem({
+    @required this.title,
+    @required this.imageUrl,
+    @required this.duration,
+    @required this.complexity,
+    @required this.affordability,
+    @required this.id,
+  });
 
+  @override
+  State<MealItem> createState() => _MealItemState();
+}
+
+class _MealItemState extends State<MealItem> {
   String get complexityText {
-    switch (complexity) {
+    switch (widget.complexity) {
       case Complexity.Simple:
         return ("Simple");
         break;
@@ -36,7 +40,7 @@ class MealItem extends StatelessWidget {
   }
 
   String get affordabilityText {
-    switch (affordability) {
+    switch (widget.affordability) {
       case Affordability.Affordable:
         return ("Simple");
         break;
@@ -54,11 +58,9 @@ class MealItem extends StatelessWidget {
 
   void selectMeal(BuildContext context) {
     Navigator.of(context)
-        .pushNamed(MealDetailScreen.routName, arguments: id)
+        .pushNamed(MealDetailScreen.routName, arguments: widget.id)
         .then((result) {
-      if (result != null) {
-        removeItem(result);
-      }
+      if (result != null) {}
     });
   }
 
@@ -81,7 +83,7 @@ class MealItem extends StatelessWidget {
                       topLeft: Radius.circular(15),
                       topRight: Radius.circular(15)),
                   child: Image.network(
-                    imageUrl,
+                    widget.imageUrl,
                     height: 250,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -96,7 +98,7 @@ class MealItem extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
                     child: Text(
-                      title,
+                      widget.title,
                       style: const TextStyle(fontSize: 26, color: Colors.white),
                       softWrap: true,
                       overflow: TextOverflow.fade,
@@ -116,7 +118,7 @@ class MealItem extends StatelessWidget {
                       const SizedBox(
                         width: 6,
                       ),
-                      Text('$duration min')
+                      Text('${widget.duration} min')
                     ],
                   ),
                   Row(

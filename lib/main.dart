@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:meals_app/dummy_data.dart';
+import 'package:meals_app/models/meal.dart';
 import 'package:meals_app/screen/categories_screen.dart';
 import 'package:meals_app/screen/category_meals_screen.dart';
 import 'package:meals_app/screen/fliter_screen.dart';
@@ -7,8 +9,59 @@ import 'package:meals_app/screen/tab_screen.dart';
 
 void main() => runApp(const MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Map<String, bool> _fliters = {
+    "gluten": false,
+    "Vegan": false,
+    "Vegetarian": false,
+    "lactose": false,
+  };
+  List<Meal> _availableMeals = DUMMY_MEALS;
+  List<Meal> _favortieMeal = [];
+  void _setFliter(Map<String, bool> fliterData) {
+    setState(
+      () {
+        _fliters = fliterData;
+        _availableMeals = DUMMY_MEALS.where((meal) {
+          if (_fliters['gluten'] && !meal.isGlutenFree) {
+            return false;
+          }
+          if (_fliters['Vegan'] && !meal.isVegan) {
+            return false;
+          }
+          if (_fliters['Vegetarian'] && !meal.isVegetarian) {
+            return false;
+          }
+          if (_fliters['lactose'] && !meal.isLactoseFree) {
+            return false;
+          }
+          return true;
+        }).toList();
+      },
+    );
+  }
+
+  void _toggleFavorites(String mealId) {
+    final existingIndex = _favortieMeal.indexWhere((meal) => meal.id == mealId);
+    if (existingIndex >= 0) {
+      setState(() {
+        _favortieMeal.removeAt(existingIndex);
+      });
+    } else {
+      _favortieMeal.add(DUMMY_MEALS.firstWhere((meal) => meal.id == mealId));
+    }
+  }
+
+  bool isMealFavorite(String id) {
+    return _favortieMeal.any((meal) => meal.id == id);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +86,12 @@ class MyApp extends StatelessWidget {
       // home: const CategoriesScreen(),
       // initialRoute: '/',
       routes: {
-        '/': (ctx) => const TabsScreen(),
-        CategoryMealsScreen.routeName: (ctx) => CategoryMealsScreen(),
-        MealDetailScreen.routName: (ctx) => const MealDetailScreen(),
-        FliterScreen.routeName: (context) => const FliterScreen(),
+        '/': (ctx) => TabsScreen(_favortieMeal),
+        CategoryMealsScreen.routeName: (ctx) =>
+            CategoryMealsScreen(_availableMeals),
+        MealDetailScreen.routName: (ctx) =>
+            MealDetailScreen(_toggleFavorites, isMealFavorite),
+        FliterScreen.routeName: (context) => FliterScreen(_fliters, _setFliter),
       },
       onGenerateRoute: (settings) {
         print(settings.arguments);
